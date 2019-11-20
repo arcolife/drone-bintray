@@ -40,10 +40,19 @@ docker build \
 
 ```console
 docker run --rm \
-  -e PLUGIN_USERNAME=octocat \
-  -e PLUGIN_PASSWORD=p455w0rd \
-  -e PLUGIN_BRANCH=master \
-  -v $(pwd):$(pwd) \
-  -w $(pwd) \
-  plugins/bintray
+       -e PLUGIN_BINTRAY_USERNAME=$BINTRAY_USER \
+       -e PLUGIN_BINTRAY_API_KEY=$BINTRAY_KEY \
+       -e PLUGIN_BINTRAY_CFG=./package_config_new.yaml \
+       -e PLUGIN_BINTRAY_GPG_PASSPHRASE=$BINTRAY_ADMIN_GPG_PASSPHRASE \
+       -v $(pwd):$(pwd) \
+       -w $(pwd) \
+       plugins/bintray
+
+OR
+
+docker run --rm \
+       --env-file .env \
+       -v $(pwd):$(pwd) \
+       -w $(pwd) \
+       plugins/bintray
 ```

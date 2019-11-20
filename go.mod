@@ -1,7 +1,12 @@
-module github.com/drone-plugins/drone-bintray
+module github.com/arcolife/drone-bintray
+
+go 1.13
 
 require (
-	github.com/drone/drone-go v0.0.0-20160502151758-eaa41f7836a1
-	golang.org/x/net v0.0.0-20190206195030-65e2d4e15006 // indirect
-	golang.org/x/oauth2 v0.0.0-20190211080642-99b60b757ec1 // indirect
+	github.com/arcolife/jfrog-client-go v0.6.0
+	github.com/joho/godotenv v1.3.0
+	github.com/pkg/errors v0.8.1
+	github.com/sirupsen/logrus v1.4.2
+	github.com/urfave/cli/v2 v2.0.0
+	gopkg.in/yaml.v2 v2.2.7
 )

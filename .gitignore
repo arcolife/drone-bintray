@@ -2,3 +2,6 @@ release/
 
 coverage.out
 drone-bintray
+
+*~
+.*~
