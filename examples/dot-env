@@ -1,0 +1,8 @@
+BINTRAY_KEY=f4g8ef@***223
+BINTRAY_USER=foobar
+BINTRAY_ADMIN_GPG_PASSPHRASE='F33d.e!0cE**********'
+PLUGIN_BINTRAY_CFG=/opt/bintray/package_config.yaml
+UPLOAD_PACKAGE=true
+SIGN_PACKAGE=false
+CALC_META=false
+SHOW_PACKAGE=false

@@ -116,13 +116,13 @@ func run(c *cli.Context) error {
 	plugin := Plugin{
 		BintrayConfig: BintrayConfig{
 			Threads:       c.Int("bintray.threads"),
-			Cleanup:       c.Bool("bintray.cleanup"),
 			Username:      c.String("bintray.username"),
 			APIKey:        c.String("bintray.api-key"),
 			GPGPassphrase: c.String("bintray.gpg-passphrase"),
 		},
 		Version:            c.String("version"),
 		UploadPackage:      c.Bool("file.upload"),
+		Cleanup:            c.Bool("bintray.cleanup"),
 		SignPackageVersion: c.Bool("package.sign"),
 		PublishPackage:     c.Bool("package.publish"),
 		CalcMetadata:       c.Bool("repo.calc-metadata"),

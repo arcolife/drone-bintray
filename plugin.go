@@ -62,6 +62,7 @@ type (
 		ServicesManager    *bintray.ServicesManager
 		BintrayConfigPath  string   `yaml:"bintray_cfg_path"`
 		Version            string   `yaml:"verison"`
+		Cleanup            bool     `yaml:"cleanup"`
 		UploadPackage      bool     `yaml:"uploadpackage"`
 		SignPackageVersion bool     `yaml:"signpackageversion"`
 		PublishPackage     bool     `yaml:"publishpackage"`
@@ -92,7 +93,8 @@ func (p Plugin) Exec() error {
 
 	p.ServicesManager = p.BintrayConfig.InitConfig()
 
-	if p.BintrayConfig.Cleanup {
+	if p.BintrayConfig.Cleanup || p.Cleanup {
+		fmt.Printf("\nCleaning up")
 		p.BintrayConfig.cleanup(p.ServicesManager)
 		p.BintrayConfig.checkDetails(p.ServicesManager)
 	}
@@ -106,7 +108,7 @@ func (p Plugin) Exec() error {
 			if uploaded > 0 || p.SignPackageVersion {
 				p.BintrayConfig.signPackageVersion(p.ServicesManager, &repo, &pack)
 			}
-			if uploaded > 0 && pack.Upload.Publish {
+			if uploaded > 0 || (pack.Upload.Publish && p.PublishPackage) {
 				p.BintrayConfig.publishPackage(p.ServicesManager, &repo, &pack)
 			}
 			if uploaded > 0 || p.CalcMetadata {
@@ -124,6 +126,8 @@ func (p Plugin) Exec() error {
 func (config *BintrayConfig) InitConfig() *bintray.ServicesManager {
 
 	btDetails := auth.NewBintrayDetails()
+	btDetails.SetApiUrl("https://api.bintray.com/")
+	fmt.Printf("API url: [%s]\n", btDetails.GetApiUrl())
 	btDetails.SetUser(config.Username)
 	btDetails.SetKey(config.APIKey)
 	btDetails.SetDefPackageLicense(defaultLicense)
@@ -155,9 +159,16 @@ func (config *BintrayConfig) deletePackage(btManager *bintray.ServicesManager, r
 	return errors.Wrap(btManager.DeletePackage(packagePath), "Package non-existent")
 }
 
-func (config *BintrayConfig) createRepo(btManager *bintray.ServicesManager, repo *Repo) (bool, error) {
+func (config *BintrayConfig) createRepo(btManager *bintray.ServicesManager, repo *Repo) error {
+	var err error
+	var existsOk bool
+
 	repoPath := repositories.Path{Subject: repo.Subject, Repo: repo.Name}
-	return btManager.CreateReposIfNeeded(&repoPath, &repo.Config, repo.Config.RepoConfigFilePath)
+	existsOk, err = btManager.CreateReposIfNeeded(&repoPath, &repo.Config, repo.Config.RepoConfigFilePath)
+	if existsOk == true && err == nil {
+		fmt.Println("Success")
+	}
+	return errors.Wrap(err, "RepoConfigFilePath non-existent")
 }
 
 func (config *BintrayConfig) createPackage(btManager *bintray.ServicesManager, repo *Repo, pack *Package) error {
@@ -241,7 +252,7 @@ func (config *BintrayConfig) checkDetails(btManager *bintray.ServicesManager) {
 			if RepoExistsOk != true {
 				fmt.Printf("\nRepo does not exist.. [%s]", repoPath)
 				fmt.Printf("\nCreating Repo..")
-				_, err = config.createRepo(btManager, &repo)
+				err = config.createRepo(btManager, &repo)
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
